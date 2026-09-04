@@ -9,7 +9,7 @@ The framework is designed for large-scale food purchase datasets, where zero pur
 ## Overview
 
 Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. 
-This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices fluctuate.
+This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices increased during the inflation period.
 
 The methodology combines:
 
@@ -19,38 +19,6 @@ The methodology combines:
 - Poisson Pseudo-Maximum Likelihood (PPML)
 - Cluster-robust standard errors
 - Energy-adjusted food purchase quantities
-
----
-
-## Statistical Model
-
-For each food category *i*, the following nutrition composition model is estimated:
-
-\[
-E(Q_{iht}|p_{jht}, \mu_h, \lambda_t)
-=
-\exp
-\left(
-\sum_{j=1}^{N}
-\delta_{ij}\log(p_{jht})
-+
-\mu_h
-+
-\lambda_t
-\right)
-\]
-
-where:
-
-| Symbol | Description |
-|----------|----------|
-| \(Q_{iht}\) | Relative quantity (kg/10 MJ) of food category *i* purchased by household *h* at time *t* |
-| \(p_{jht}\) | Fisher Ideal Price Index for food category *j* |
-| \(\mu_h\) | Household fixed effects |
-| \(\lambda_t\) | Time fixed effects |
-| \(\delta_{ij}\) | Price elasticity coefficients |
-
-The estimated coefficients are interpreted as **category-specific composition elasticities** rather than full demand elasticities.
 
 ---
 

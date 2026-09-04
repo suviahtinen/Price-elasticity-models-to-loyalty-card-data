@@ -1,19 +1,13 @@
 # Price Elasticity Modelling with `fixest`
 
-This repository provides a workflow for estimating food price elasticities using household-level loyalty-card data in R. 
-The analyses apply fixed-effects Poisson Pseudo-Maximum Likelihood (PPML) models implemented with the `fixest` package to examine how changes in food prices are associated with changes in energy-adjusted food purchase quantities.
-The framework is designed for large-scale food purchase datasets, where zero purchases are common and household purchasing behavior is observed repeatedly over time.
-
----
 
 ## Overview
 
-Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. 
-This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices increased during the inflation period.
+Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. This repository provides a workflow for estimating food price elasticities using household-level loyalty-card data in R. The analyses apply fixed-effects Poisson Pseudo-Maximum Likelihood (PPML) models implemented with the `fixest` package to examine how increases in food prices are associated with changes in energy-adjusted food purchase quantities. The framework is designed for large-scale food purchase datasets, where zero purchases are common and household purchasing behavior is observed repeatedly over time.
 
 This repository includes:
 
-- Code to calculate Fisher Ideal Price Indices
+- Code to calculate food category spesific Fisher Ideal Price Indices
 - Code to Fixed-effects models using Poisson Pseudo-Maximum Likelihood (PPML) and price elasticity heatmaps. 
 
 ---

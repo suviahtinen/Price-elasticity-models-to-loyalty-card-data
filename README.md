@@ -11,14 +11,10 @@ The framework is designed for large-scale food purchase datasets, where zero pur
 Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. 
 This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices increased during the inflation period.
 
-The methodology combines:
+This repository includes:
 
-- Household food purchases data
-- Fisher Ideal Price Indices
-- Fixed-effects models
-- Poisson Pseudo-Maximum Likelihood (PPML)
-- Cluster-robust standard errors
-- Energy-adjusted food purchase quantities
+- Code to calculate Fisher Ideal Price Indices
+- Code to Fixed-effects models using Poisson Pseudo-Maximum Likelihood (PPML) and price elasticity heatmaps. 
 
 ---
 
@@ -39,9 +35,6 @@ Models are estimated using the `fepois()` function from the `fixest` package. Fo
 ```r
 
 library(fixest)
-library(tsibble)
-library(tidyr)
-library(dplyr)
 
 #  Setup:
 

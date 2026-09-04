@@ -30,6 +30,19 @@ Models are estimated using the `fepois()` function from the `fixest` package. Fo
 
 library(fixest)
 
+#'Data includes:
+
+#'@param "class1" Food categories as factor
+
+#'@param "customer_id" ID to each household 
+
+#'@param "elapsed_time" Continuous elapsed time variable
+
+#'@param "energy_adjust_MJ" Continuous energy-adjusted food purchase quantities
+
+#'@param "fisher_index" Continuous food category spesific Fisher Ideal Price Index
+
+
 #  Setup:
 
 categories      <- levels(data$class1)
@@ -39,7 +52,7 @@ price_vars      <- paste0("log(", fisher_names, ")")
 fe_string       <- "factor(customer_id) + factor(elapsed_time)"
 
 
-# fepois: 
+# fepois (the longitudinal data were reshaped from long to wide format prior to analysis): 
 
 fepois_list <- lapply(seq_along(categories), function(i){
   outcome <- energy_vars[i]

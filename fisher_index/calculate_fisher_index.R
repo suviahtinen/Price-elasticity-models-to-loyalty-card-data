@@ -2,14 +2,19 @@
 
 # Compute Fisher Ideal Price Index 
 
-compute_fisher_index <- function(data,ID,kat_9, category_col, euro_col, price_col, quantity_col, time_col) { 
+
+
+
+
+
+compute_fisher_index <- function(data,ID,food_product, category_col, price_col, quantity_col, time_col) { 
   
   # Ensure time column is factor
   data[[time_col]] <- as.factor(data[[time_col]])
   
   data1 <- data %>%
     filter(.data[[quantity_col]]!=0) %>%
-    group_by(.data[[kat_9]]) %>%
+    group_by(.data[[food_product]]) %>%
     summarise(
       mean_pq_0 =mean(.data[[price_col]] * .data[[quantity_col]], na.rm = TRUE),
       mean_q_0 = mean(.data[[quantity_col]], na.rm = TRUE),
@@ -18,7 +23,7 @@ compute_fisher_index <- function(data,ID,kat_9, category_col, euro_col, price_co
   
   # Compute Laspeyres and Paasche for each category and time
   
-  data2 <- data %>% left_join(data1,by = kat_9) %>%
+  data2 <- data %>% left_join(data1,by = food_product) %>%
     filter(.data[[quantity_col]]!=0) %>%
     group_by(.data[[ID]],.data[[time_col]], .data[[category_col]]) %>%
     summarise(
@@ -27,8 +32,7 @@ compute_fisher_index <- function(data,ID,kat_9, category_col, euro_col, price_co
       sum_p_0_sum_q = sum(mean_p_0 *.data[[quantity_col]], na.rm = TRUE),
       sum_pq_0 = sum(mean_pq_0, na.rm = TRUE),
       sum_q = sum(.data[[quantity_col]], na.rm = TRUE),
-      sum_p = sum(.data[[price_col]], na.rm = TRUE),
-      sum_e = sum(.data[[euro_col]], na.rm = TRUE))
+      sum_p = sum(.data[[price_col]], na.rm = TRUE))
   
   
   index_df <- data2 %>% 
@@ -38,10 +42,9 @@ compute_fisher_index <- function(data,ID,kat_9, category_col, euro_col, price_co
       fisher_index = sqrt(laspeyres * paasche),
       fisher_index_100 = 100 * fisher_index,
       price_sum_category = sum_p,
-      quantity_sum_category = sum_q,
-      euro_sum_category=sum_e
+      quantity_sum_category = sum_q
     ) %>%
-    select(.data[[ID]],.data[[time_col]], .data[[category_col]],price_sum_category,euro_sum_category,quantity_sum_category,fisher_index,fisher_index_100)
+    select(.data[[ID]],.data[[time_col]], .data[[category_col]],price_sum_category,quantity_sum_category,fisher_index,fisher_index_100)
   
   return(index_df)
 }

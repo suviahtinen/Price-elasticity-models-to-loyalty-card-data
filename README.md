@@ -1,0 +1,153 @@
+# Price Elasticity Modelling with `fixest`
+
+This repository provides a workflow for estimating food price elasticities using household-level food purchases data in R. 
+The analyses apply fixed-effects Poisson Pseudo-Maximum Likelihood (PPML) models implemented with the `fixest` package to examine how changes in food prices are associated with changes in energy-adjusted food purchase quantities.
+The framework is designed for large-scale food purchase datasets, where zero purchases are common and household purchasing behavior is observed repeatedly over time.
+
+---
+
+## Overview
+
+Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. 
+This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices fluctuate.
+
+The methodology combines:
+
+- Household food purchases data
+- Fisher Ideal Price Indices
+- Fixed-effects models
+- Poisson Pseudo-Maximum Likelihood (PPML)
+- Cluster-robust standard errors
+- Energy-adjusted food purchase quantities
+
+---
+
+## Statistical Model
+
+For each food category *i*, the following nutrition composition model is estimated:
+
+\[
+E(Q_{iht}|p_{jht}, \mu_h, \lambda_t)
+=
+\exp
+\left(
+\sum_{j=1}^{N}
+\delta_{ij}\log(p_{jht})
++
+\mu_h
++
+\lambda_t
+\right)
+\]
+
+where:
+
+| Symbol | Description |
+|----------|----------|
+| \(Q_{iht}\) | Relative quantity (kg/10 MJ) of food category *i* purchased by household *h* at time *t* |
+| \(p_{jht}\) | Fisher Ideal Price Index for food category *j* |
+| \(\mu_h\) | Household fixed effects |
+| \(\lambda_t\) | Time fixed effects |
+| \(\delta_{ij}\) | Price elasticity coefficients |
+
+The estimated coefficients are interpreted as **category-specific composition elasticities** rather than full demand elasticities.
+
+---
+
+## Why PPML?
+
+Food purchase data often contain a large number of zeros because households do not purchase every food category during every observation period.
+
+PPML was selected because it:
+
+- Naturally accommodates zero outcomes
+- Does not require log-transformation of the dependent variable
+- Produces consistent estimates under heteroskedasticity
+- Supports high-dimensional fixed effects
+- Scales efficiently to large household panel datasets
+
+Models are estimated using the `fepois()` function from the `fixest` package. For example:
+
+```r
+
+library(fixest)
+library(tsibble)
+library(tidyr)
+library(dplyr)
+
+#  Setup:
+
+categories      <- levels(data$class1)
+energy_vars     <- paste0("energy_adjust_MJ_", categories)
+fisher_names    <- paste0("fisher_index_", categories)
+price_vars      <- paste0("log(", fisher_names, ")")
+fe_string       <- "factor(customer_id) + factor(elapsed_time)"
+
+
+# fepois: 
+
+fepois_list <- lapply(seq_along(categories), function(i){
+  outcome <- energy_vars[i]
+  formula_str <- paste0(outcome, " ~ ", paste(price_vars, collapse = " + "), " | ", fe_string)
+  fepois(
+    as.formula(formula_str),
+    data = data_wide,
+    cluster = ~customer_id,
+    fixef.rm = "none"
+ )
+})
+names(fepois_list) <- categories
+
+# Results:
+
+extract_coef_se_table <- function(model_list, categories, price_vars) {
+
+  n <- length(categories)
+
+  coef_mat <- matrix(NA_real_, n, n)
+  se_mat   <- matrix(NA_real_, n, n)
+
+  rownames(coef_mat) <- colnames(coef_mat) <- categories
+  rownames(se_mat)   <- colnames(se_mat)   <- categories
+
+  for (i in seq_along(categories)) {
+
+    m  <- model_list[[i]]
+    ct <- coeftable(m)
+
+    for (j in seq_along(categories)) {
+
+      vname <- price_vars[j]
+
+      if (vname %in% rownames(ct)) {
+        coef_mat[i, j] <- ct[vname, "Estimate"]
+        se_mat[i, j]   <- ct[vname, "Std. Error"]
+      }
+    }
+  }
+
+  list(coef = coef_mat, se = se_mat)
+}
+
+
+coef_se <- extract_coef_se_table(
+  fepois_list,
+  categories,
+  price_vars
+)
+
+coef_se
+
+```
+
+# References:
+
+Davies T, Saxena A, et al. (2025). Food price elasticity estimates in Australia. Nature Food 6, 725–732.
+
+Correia S, Guimarães P, Zylkin T. (2020). Fast Poisson Estimation with High-Dimensional Fixed Effects. Stata Journal, 20(1), 95-115.
+
+Gourieroux C, Monfort A, Trognon A. (1984). Pseudo Maximum Likelihood Methods: Applications to Poisson Models. Econometrica, 52(3), 701-720.
+
+Santos Silva JMC, Tenreyro S. (2006). The Log of Gravity. Review of Economics and Statistics, 88(4), 641-658.
+
+Pan W. (2001). On the Robust Variance Estimator in Generalized Estimating Equations. Biometrics 57, 901–906.

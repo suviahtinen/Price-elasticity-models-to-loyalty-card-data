@@ -40,7 +40,7 @@ library(fixest)
 
 #'@param "energy_adjust_MJ" Continuous energy-adjusted food purchase quantities
 
-#'@param "fisher_index" Continuous food category spesific Fisher Ideal Price Index
+#'@param "fisher_index" Continuous Fisher Ideal Price Index
 
 
 #  Setup:

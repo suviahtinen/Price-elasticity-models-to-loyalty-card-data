@@ -1,19 +1,13 @@
 # Price Elasticity Modelling with `fixest`
 
-This repository provides a workflow for estimating food price elasticities using household-level loyalty-card data in R. 
-The analyses apply fixed-effects Poisson Pseudo-Maximum Likelihood (PPML) models implemented with the `fixest` package to examine how changes in food prices are associated with changes in energy-adjusted food purchase quantities.
-The framework is designed for large-scale food purchase datasets, where zero purchases are common and household purchasing behavior is observed repeatedly over time.
-
----
 
 ## Overview
 
-Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. 
-This repository focuses on estimating **food purchase composition elasticities**, describing how the relative composition of food purchases changes when food prices increased during the inflation period.
+Price elasticity modelling is widely used in economics and public health research to quantify how consumers respond to changes in food prices. This repository provides a workflow for estimating food price elasticities using household-level loyalty-card data in R. The analyses apply fixed-effects Poisson Pseudo-Maximum Likelihood (PPML) models implemented with the `fixest` package to examine how increases in food prices are associated with changes in energy-adjusted food purchase quantities. The framework is designed for large-scale food purchase datasets, where zero purchases are common and household purchasing behavior is observed repeatedly over time.
 
 This repository includes:
 
-- Code to calculate Fisher Ideal Price Indices
+- Code to calculate food category spesific Fisher Ideal Price Indices
 - Code to Fixed-effects models using Poisson Pseudo-Maximum Likelihood (PPML) and price elasticity heatmaps. 
 
 ---
@@ -36,6 +30,19 @@ Models are estimated using the `fepois()` function from the `fixest` package. Fo
 
 library(fixest)
 
+#'Data includes:
+
+#'@param "class1" Food categories as factor
+
+#'@param "customer_id" ID to each household 
+
+#'@param "elapsed_time" Continuous elapsed time variable
+
+#'@param "energy_adjust_MJ" Continuous energy-adjusted food purchase quantities
+
+#'@param "fisher_index" Continuous Fisher Ideal Price Index
+
+
 #  Setup:
 
 categories      <- levels(data$class1)
@@ -45,7 +52,7 @@ price_vars      <- paste0("log(", fisher_names, ")")
 fe_string       <- "factor(customer_id) + factor(elapsed_time)"
 
 
-# fepois: 
+# fepois (the longitudinal data were reshaped from long to wide format prior to analysis): 
 
 fepois_list <- lapply(seq_along(categories), function(i){
   outcome <- energy_vars[i]

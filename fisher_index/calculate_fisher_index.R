@@ -2,8 +2,26 @@
 
 # Compute Fisher Ideal Price Index 
 
+# Purpose:
 
-
+# This script calculates the Fisher Ideal Price Index from transaction or
+# purchase data. The Fisher Index combines the Laspeyres and Paasche price
+# indices using their geometric mean, providing a balanced measure of price
+# change while accounting for changes in purchasing behavior.
+#
+# Input data requirements:
+# - Data
+# - Household identifier (ID)
+# - Product identifier (food_product)
+# - Food category (category_col)
+# - Quantity purchased (quantity_col)
+# - Unit price (price_col)
+# - Time period (time_col)
+#
+# Output:
+# - Data identifier each household, timepoint and category
+# - Sums the columns of prices and quantities (price_sum_category and quantity_sum_category) 
+# - Calculated Fisher Ideal Price Index and multiplied by 100 (fisher_index and fisher_index_100)
 
 
 

@@ -7,8 +7,8 @@ Price elasticity modelling is widely used in economics and public health researc
 
 This repository includes:
 
-- Code to calculate food category spesific Fisher Ideal Price Indices
-- Code to Fixed-effects models using Poisson Pseudo-Maximum Likelihood (PPML) and price elasticity heatmaps. 
+- Code to calculate food category spesific Fisher Ideal Price Indices (see folder fisher_index)
+- Code to Fixed-effects models using Poisson Pseudo-Maximum Likelihood (see folder models)
 
 ---
 

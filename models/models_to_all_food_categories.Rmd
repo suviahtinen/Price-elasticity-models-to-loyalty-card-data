@@ -128,9 +128,9 @@ coef_se_table <- ifelse(
   is.na(coef_mat),
   "",
   paste0(
-    round(coef_mat, 2),
+    coef_mat,
     " (",
-    round(se_mat, 3),
+    se_mat,
     ")"
   )
 )

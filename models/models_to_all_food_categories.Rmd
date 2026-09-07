@@ -1,0 +1,139 @@
+---
+title: "Price elasticity models to all food categories"
+author: "Suvi Ahtinen"
+date: "2026-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyr)
+library(dplyr)
+library(fixest)
+```
+
+```{r echo=TRUE,eval=TRUE}
+
+# Loading data (see at fisher_index folder to make data) :
+
+header <- colnames(read.table("data.csv", header = TRUE, nrow=1))
+data_class1<-fread("data.csv",sep=" ",skip=1)
+data_class1<-setnames(data_class1[,-1],header)
+
+
+#Price elasticity to relative volumes:
+
+data_class1$energy_MJ<-data_class1$energy_kcal*0.004184
+
+data_class1$energy_adjust_MJ<-(data_class1$quantity_sum_category/data_class1$energy_MJ)*10
+
+data_class1_filt<- data_class1 %>% filter(!is.infinite(energy_adjust_MJ)) 
+
+data_class1_filt<-na.omit(data_class1_filt)
+
+data_class1_filt$energy_adjust_MJ<-Winsorize(data_class1_filt$energy_adjust_MJ, c(0,0.95))
+
+
+# modify names without spaces in the models: 
+
+data_class1_filt$class1<-factor(data_class1_filt$class1,labels=c("Alc_bev","Bakery","Bread","Cheeses","Coffee","Edible_fat","Eggs","Fish_seafoods","Fruits_berries","Grain_based_foods","Milk_dairy_prod","Potatoes","Poultry","Red_process_meats","Snacks","Sugar_sweet_bev","Sweets_chocolates","Vegetables"))
+
+
+#  Convert to data.table for speed/memory
+
+dt <- as.data.table(data_class1_filt)
+
+#  Create a wide table:
+# - Each household-time is a row, each category gets price & share columns
+
+dt_wide <- dcast(
+  dt, 
+  customer_id + elapsed_time  ~ class1, 
+  value.var = c("fisher_index","energy_adjust_MJ"),
+  fill = 0
+)
+
+names(dt_wide)
+
+#  SETUP 
+
+rm(data_class1)
+rm(dt)
+gc()
+
+categories      <- levels(data_class1_filt$class1)
+energy_vars     <- paste0("energy_adjust_MJ_", categories)
+fisher_names    <- paste0("fisher_index_", categories)
+price_vars      <- paste0("log(", fisher_names, ")")
+fe_string       <- "factor(customer_id) + factor(elapsed_time)"
+
+
+# fepois  
+fepois_list <- lapply(seq_along(categories), function(i){
+  outcome <- energy_vars[i]
+  formula_str <- paste0(outcome, " ~ ", paste(price_vars, collapse = " + "), " | ", fe_string)
+  fepois(
+    as.formula(formula_str),
+    data = dt_wide,
+    cluster = ~customer_id,
+    fixef.rm = "none"
+ )
+})
+names(fepois_list) <- categories
+
+
+extract_coef_se_table <- function(model_list, categories, price_vars) {
+
+  n <- length(categories)
+
+  coef_mat <- matrix(NA_real_, n, n)
+  se_mat   <- matrix(NA_real_, n, n)
+
+  rownames(coef_mat) <- colnames(coef_mat) <- categories
+  rownames(se_mat)   <- colnames(se_mat)   <- categories
+
+  for (i in seq_along(categories)) {
+
+    m  <- model_list[[i]]
+    ct <- coeftable(m)
+
+    for (j in seq_along(categories)) {
+
+      vname <- price_vars[j]
+
+      if (vname %in% rownames(ct)) {
+        coef_mat[i, j] <- ct[vname, "Estimate"]
+        se_mat[i, j]   <- ct[vname, "Std. Error"]
+      }
+    }
+  }
+
+  list(coef = coef_mat, se = se_mat)
+}
+
+
+
+coef_se <- extract_coef_se_table(
+  fepois_list,
+  categories,
+  price_vars
+)
+
+coef_mat <- round(coef_se$coef,2)
+se_mat   <- round(coef_se$se,3)
+
+coef_se_table <- ifelse(
+  is.na(coef_mat),
+  "",
+  paste0(
+    round(coef_mat, 2),
+    " (",
+    round(se_mat, 3),
+    ")"
+  )
+)
+
+coef_se_table
+
+```

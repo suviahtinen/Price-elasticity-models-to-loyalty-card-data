@@ -32,7 +32,7 @@ library(fixest)
 
 #'Data includes:
 
-#'@param "class1" Food categories as factor
+#'@param "food_categ" Food categories as factor
 
 #'@param "customer_id" ID to each household 
 
@@ -45,7 +45,7 @@ library(fixest)
 
 #  Setup:
 
-categories      <- levels(data$class1)
+categories      <- levels(data$food_categ)
 energy_vars     <- paste0("energy_adjust_MJ_", categories)
 fisher_names    <- paste0("fisher_index_", categories)
 price_vars      <- paste0("log(", fisher_names, ")")

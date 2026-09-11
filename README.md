@@ -121,4 +121,6 @@ Santos Silva JMC, Tenreyro S. (2006). The Log of Gravity. Review of Economics an
 Pan W. (2001). On the Robust Variance Estimator in Generalized Estimating Equations. Biometrics 57, 901–906.
 
 
+## DOI badge
+
 [![DOI](https://zenodo.org/badge/1356991552.svg)](https://doi.org/10.5281/zenodo.22706803)
